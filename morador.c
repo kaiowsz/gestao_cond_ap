@@ -74,14 +74,21 @@ Morador* cadastrarMorador(Morador *vetor, int *qtd, int *tam) {
     }
 
     vetor = temp;
+    char cpfTemp[15];
 
     printf("Criando novo morador - insira os seguintes dados: \n");
 
     printf("CPF (apenas numeros ou com ponto): ");
-    scanf(" %[^\n]", vetor[*qtd].cpf);
+    scanf(" %[^\n]", cpfTemp);
+    // scanf(" %[^\n]", vetor[*qtd].cpf);
 
-    // if(buscarindicemorador);
-    // verifica se cpf ja ta cadastrado
+    if(buscarIndiceMorador(vetor, *qtd, cpfTemp) != -1) {
+        printf("Erro: Este CPF ja esta cadastrado no sistema!\n");
+        printf("Operacao cancelada.\n");
+        return vetor;
+    }
+
+    strcpy(vetor[*qtd].cpf, cpfTemp);
 
     printf("Nome completo: ");
     scanf(" %[^\n]", vetor[*qtd].nome);

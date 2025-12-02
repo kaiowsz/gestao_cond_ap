@@ -9,8 +9,8 @@ int gerarID(AreaComum *vetor, int qtd) {
     int maior = 0;
 
     for(int i = 0; i < qtd; i++) {
-        if(vetor[qtd].id_area > maior) {
-            maior = vetor[qtd].id_area;
+        if(vetor[i].id_area > maior) {
+            maior = vetor[i].id_area;
         }
     }
 

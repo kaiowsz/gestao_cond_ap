@@ -17,13 +17,14 @@ int main() {
     AreaComum *areas = NULL;
     int qtdAreas = 0, tamAreas = 0;
 
-    Morador *reservas = NULL;
+    Reserva *reservas = NULL;
     int qtdReservas = 0, tamReservas = 0;
 
     printf("Carregando sistema...\n");
 
     moradores = carregarMoradores(&qtdMoradores, &tamMoradores);
     areas = carregarAreas(&qtdAreas, &tamAreas);
+    reservas = carregarReservas(&qtdReservas, &tamReservas);
 
     int opcao = 0;
     
@@ -33,7 +34,7 @@ int main() {
         printf("1. Módulo Moradores\n");
         printf("2. Módulo Áreas Comuns\n");
         printf("3. Módulo Reservas\n");
-        printf("4. Relatórios\n");
+        printf("4. Relatórios Gerenciais (Filtros e Arquivos)\n");
         printf("0. Sair e Salvar\n");
         printf(">> ");
         scanf("%d", &opcao);
@@ -49,9 +50,16 @@ int main() {
                 break;
             case 3:
                 printf("Entrando no módulo de reservas...\n");
+                moduloReservas(&reservas, &qtdReservas, &tamReservas, moradores, qtdMoradores, areas, qtdAreas);
                 break;
             case 4:
                 printf("Entrando nos relatórios...\n");
+                if(qtdReservas > 0) {
+                    gerarRelatorioReservas(reservas, qtdReservas, moradores, qtdMoradores, areas, qtdAreas);
+                } else {
+                    printf("Nenhuma reserva para gerar relatorio.\n");
+                }
+                system("pause");
                 break;
             case 0:
                 printf("Encerrando o programa...\n");
@@ -65,6 +73,7 @@ int main() {
     printf("Salvando os dados...\n");
     salvarMoradores(moradores, qtdMoradores);
     salvarAreas(areas, qtdAreas);
+    salvarReservas(reservas, qtdReservas);
 
     if(moradores) free(moradores);
     if(areas) free(areas);

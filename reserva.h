@@ -17,6 +17,8 @@ typedef struct {
     Data data_reserva;
 } Reserva;
 
+void gerarRelatorioReservas(Reserva *vRes, int qRes, Morador *vMor, int qMor, AreaComum *vArea, int qArea);
+
 void moduloReservas(Reserva **vRes, int *qRes, int *tRes,
     Morador *vMor, int qMor,
     AreaComum *vArea, int qArea
@@ -25,11 +27,13 @@ void moduloReservas(Reserva **vRes, int *qRes, int *tRes,
 Reserva* carregarReservas(int *qtd, int *tam);
 void salvarReservas(Reserva *vetor, int qtd);
 
-Reserva cadastrarReserva(Reserva *vRes, int *qRes, int *tRes,
+Reserva* cadastrarReserva(Reserva *vRes, int *qRes, int *tRes,
     Morador *vMor, int qMor,
     AreaComum *vArea, int qArea
 );
 
 void listarReservas(Reserva *vRes, int qRes);
+
+void listarReservasDetalhadas(Reserva *vRes, int qRes, Morador *vMor, int qMor, AreaComum *vArea, int qArea);
 
 #endif
