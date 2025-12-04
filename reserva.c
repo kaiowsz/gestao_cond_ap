@@ -33,6 +33,110 @@ void imprimirLinhaReserva(FILE *saida, Reserva reserva, Morador *vMor, AreaComum
     }
 }
 
+int anoBissexto(int ano) {
+    // divisível por 4 e nao termina em 00 OU divisível por 400.
+    return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);
+}
+
+int moradorTemReserva(Reserva *vRes, int qRes, char *cpf) {
+    for(int i = 0; i < qRes; i++) {
+        if(strcmp(vRes[i].cpf_morador, cpf) == 0) {
+            // Há ao menos uma reserva nesse cpf.
+            return 1;
+        }
+    }
+
+    // Sem reservas.
+    return 0;
+}
+
+int verificarDataValida(int dia, int mes, int ano) {
+    if(ano < 2024) return 0;
+    if(mes < 1 || mes > 12) return 0;
+    if (dia < 1) return 0;
+
+    int diasNoMes;
+
+    if(mes == 2) {
+        diasNoMes = anoBissexto(ano) ? 29 : 28;
+    } else if(mes == 4 || mes == 6 || mes == 9 || mes == 11) {
+        diasNoMes = 30;
+    } else {
+        diasNoMes = 31;
+    }
+
+    if(dia > diasNoMes) return 0;
+
+    return 1;
+}
+
+int verificarDisponibilidade(Reserva *vRes, int qtd, int idArea, int dia, int mes, int ano) {
+    for(int i = 0; i < qtd; i++) {
+        if(vRes[i].id_area == idArea) {
+            if(
+                vRes[i].data_reserva.dia == dia &&
+                vRes[i].data_reserva.mes == mes &&
+                vRes[i].data_reserva.ano == ano
+            ) {
+                // Ocupado.
+                return 0;
+            }
+        }
+    }
+
+    return 1;
+}
+
+int buscarIndiceReserva(Reserva *vRes, int qtd, int idBusca) {
+    for(int i = 0; i < qtd; i++) {
+        if(vRes[i].id_reserva == idBusca) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void cancelarReserva(Reserva *vRes, int *qRes) {
+    int idBusca;
+    printf("Cancelamento de reserva\n");
+    printf("Digite o ID da reserva para cancelar: ");
+    scanf("%d", &idBusca);
+
+    int index = buscarIndiceReserva(vRes, *qRes, idBusca);
+
+    if(index == -1) {
+        printf("Erro: reserva nao encontrada.\n");
+        system("pause");
+        return;
+    }
+
+    printf("\n-----------------------------------\n");
+    printf("Reserva encontrada: \n");
+    printf("Data: %02d/%02d/%04d\n", vRes[index].data_reserva.dia, vRes[index].data_reserva.mes, vRes[index].data_reserva.ano);
+    printf("CPF do responsavel: %s\n", vRes[index].cpf_morador);
+    printf("\n-----------------------------------\n");
+    printf("Tem certeza que deseja cancelar? (1 - Sim / 0 - Nao): ");
+
+    int confirma;
+
+    scanf("%d", &confirma);
+
+    if(confirma != 1) {
+        printf("Operacao cancelada.\n");
+        return;
+    }
+
+    for(int j = index; j < *qRes - 1; j++) {
+        vRes[j] = vRes[j + 1];
+    }
+
+    (*qRes)--;
+
+    printf("Sucesso. Reserva cancelada e removida do sistema.\n");
+    system("pause");
+}
+
 void gerarRelatorioReservas(Reserva *vRes, int qRes, Morador *vMor, int qMor, AreaComum *vArea, int qArea) {
     int opcao;
     printf("\n=== RELATORIO DE RESERVAS ===\n");
@@ -41,8 +145,13 @@ void gerarRelatorioReservas(Reserva *vRes, int qRes, Morador *vMor, int qMor, Ar
     printf("2. ID da Area Comum\n");
     printf("3. Mes de Referencia\n");
     printf("4. Listar Tudo (Sem filtro)\n");
+    printf("0. Voltar ao menu principal\n");
     printf(">> ");
     scanf("%d", &opcao);
+
+    if(opcao == 0) {
+        return;
+    }
 
     char cpfBusca[15];
     int idAreaBusca = 0;
@@ -247,7 +356,24 @@ Reserva* cadastrarReserva(
     vRes[*qRes].id_area = idAreaTemp;
 
     printf("Data da reserva (dia mes ano): ");
-    scanf("%d %d %d", &vRes[*qRes].data_reserva.dia, &vRes[*qRes].data_reserva.mes, &vRes[*qRes].data_reserva.ano);
+
+    int dia, mes, ano;
+    scanf("%d %d %d", &dia, &mes, &ano);
+
+    if(!verificarDataValida(dia, mes, ano)) {
+        printf("\nErro: Data invalida. Verifique o dia/mes/ano.\n");
+        return vRes;
+    }
+
+    if(verificarDisponibilidade(vRes, *qRes, idAreaTemp, dia, mes, ano) == 0) {
+        printf("Erro: Esta area ja esta reservada para essa data.\n");
+        printf("Por favor, escolha outro dia ou outra area.\n");
+        return vRes;
+    }
+
+    vRes[*qRes].data_reserva.dia = dia;
+    vRes[*qRes].data_reserva.mes = mes;
+    vRes[*qRes].data_reserva.ano = ano;
 
     (*qRes)++;
     printf("Reserva #%d confirmada com sucesso!\n", novoId);
@@ -276,6 +402,7 @@ void moduloReservas(
         printf("GESTAO DE RESERVAS\n");
         printf("1. Nova reserva\n");
         printf("2. Listar reservas\n");
+        printf("3. Cancelar Reserva\n");
         printf("0. Voltar ao menu principal\n");
         printf(">> ");
         scanf("%d", &opcao);
@@ -288,6 +415,9 @@ void moduloReservas(
             case 2:
                 listarReservas(*vRes, *qRes);
                 system("pause");
+                break;
+            case 3:
+                cancelarReserva(*vRes, qRes);
                 break;
             case 0:
                 printf("Voltando...\n");
