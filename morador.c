@@ -2,10 +2,37 @@
 #include <stdlib.h>
 #include <string.h>
 #include <locale.h>
+#include <ctype.h>
 
 #include "morador.h"
+#include "reserva.h"
 #define ARQUIVO_MORADORES "moradores.bin"
 
+int validarFormatoCPF(char *cpf) {
+    int len = strlen(cpf);
+
+    if(len != 11 && len != 14) {
+        return 0;
+    }
+
+    for(int i = 0; i < len; i++) {
+        if(!isdigit(cpf[i])) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
+int validarNome(char *nome) {
+    if(strlen(nome) < 3) return 0;
+
+    for(int i = 0; i < strlen(nome); i++) {
+        if(isdigit(nome[i])) return 0;
+    }
+
+    return 1;
+}
 
 Morador* carregarMoradores(int *qtd, int *tam) {
     setlocale(LC_ALL, "Portuguese");
@@ -74,30 +101,62 @@ Morador* cadastrarMorador(Morador *vetor, int *qtd, int *tam) {
     }
 
     vetor = temp;
-    char cpfTemp[15];
-
+    
     printf("Criando novo morador - insira os seguintes dados: \n");
+    char cpfTemp[50];
 
-    printf("CPF (apenas numeros ou com ponto): ");
-    scanf(" %[^\n]", cpfTemp);
-    // scanf(" %[^\n]", vetor[*qtd].cpf);
+    int cpfValido = 0;
 
-    if(buscarIndiceMorador(vetor, *qtd, cpfTemp) != -1) {
-        printf("Erro: Este CPF ja esta cadastrado no sistema!\n");
-        printf("Operacao cancelada.\n");
-        return vetor;
-    }
+    do {
+        printf("CPF (apenas numeros): ");
+        scanf(" %[^\n]", cpfTemp);
+
+        if(!validarFormatoCPF(cpfTemp)) {
+            printf("Erro: formato invalido. Use apenas numeros (11 digitos).\n");
+        }
+        else if(buscarIndiceMorador(vetor, *qtd, cpfTemp) != -1) {
+            printf("Erro: esse CPF ja existe no sistema.\n");
+        } else {
+            cpfValido = 1;
+        }
+    } while(!cpfValido);
 
     strcpy(vetor[*qtd].cpf, cpfTemp);
 
-    printf("Nome completo: ");
-    scanf(" %[^\n]", vetor[*qtd].nome);
+    int nomeValido = 0;
+
+    do {
+        printf("Nome completo: ");
+        scanf(" %[^\n]", vetor[*qtd].nome);
+
+        if(!validarNome(vetor[*qtd].nome)) {
+            printf("Erro: nome invalido. Nome deve ter no minimo 3 letras e nao pode conter numeros.\n");
+        } else {
+            nomeValido = 1;
+        }
+    } while(!nomeValido);
 
     printf("Bloco: ");
     scanf(" %[^\n]", vetor[*qtd].bloco);
 
-    printf("Numero do apartamento: ");
-    scanf("%d", &vetor[*qtd].apartamento);
+
+    int apTemp;
+
+    do {
+        printf("Numero do apartamento: ");
+        
+        // scanf retorna se conseguiu ler algo. se n conseguiu, retorna 0 
+        if(scanf("%d", &apTemp) != 1) {
+            while(getchar() != '\n');
+            apTemp = -1;
+        }
+
+        if(apTemp <= 0) {
+            printf("Erro: numero invalido. Digite um valor positivo.\n");
+        }
+    } while(apTemp <= 0);
+
+    vetor[*qtd].apartamento = apTemp;
 
     printf("Telefone: ");
     scanf(" %[^\n]", vetor[*qtd].telefone);
@@ -159,7 +218,7 @@ void alterarMorador(Morador *vetor, int qtd) {
 
 }
 
-void removerMorador(Morador *vetor, int *qtd) {
+void removerMorador(Morador *vetor, int *qtd, struct Reserva *vRes, int qRes) {
 
     char cpfParaRemover[15];
 
@@ -168,10 +227,30 @@ void removerMorador(Morador *vetor, int *qtd) {
     printf("Digite o CPF: ");
     scanf(" %[^\n]", cpfParaRemover);
 
+    if(moradorTemReserva(vRes, qRes, cpfParaRemover) == 1) {
+        printf("Erro: nao e possivel remover esse morador.\n");
+        printf("Morador tem reservas pendentes.\n");
+        return;
+    }
+
     int index = buscarIndiceMorador(vetor, *qtd, cpfParaRemover);
 
     if(index == -1) {
         printf("Erro: CPF nao encontrado.\n");
+        return;
+    }
+
+    printf("\n---------------\n");
+    printf("Tem certeza que deseja excluir: \n");
+    printf("Nome: %s, CPF: %s\n", vetor[index].nome, vetor[index].cpf);
+    printf("---------------\n");
+    printf("1 - Sim, Excluir / 0 - Nao, cancelar\n>> ");
+
+    int confirma;
+    scanf("%d", &confirma);
+
+    if(confirma != 1) {
+        printf("Operacao cancelada.\n");
         return;
     }
 
@@ -186,7 +265,7 @@ void removerMorador(Morador *vetor, int *qtd) {
     printf("Morador removido com sucesso.\n");
 }
 
-void moduloMoradores(Morador **vetor, int *qtd, int *tam) {
+void moduloMoradores(Morador **vetor, int *qtd, int *tam, struct Reserva *vRes, int qRes) {
     int opcao;
 
     do {
@@ -214,7 +293,7 @@ void moduloMoradores(Morador **vetor, int *qtd, int *tam) {
                 system("pause");
                 break;
             case 4:
-                removerMorador(*vetor, qtd);
+                removerMorador(*vetor, qtd, vRes, qRes);
                 system("pause");
                 break;
             case 0:
