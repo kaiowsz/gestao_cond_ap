@@ -46,7 +46,7 @@ int main() {
                 break;
             case 2:
                 printf("Entrando no modulo de areas...\n");
-                moduloAreas(&areas, &qtdAreas, &tamAreas);
+                moduloAreas(&areas, &qtdAreas, &tamAreas, reservas, qtdReservas);
                 break;
             case 3:
                 printf("Entrando no modulo de reservas...\n");

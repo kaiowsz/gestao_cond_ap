@@ -8,7 +8,8 @@ typedef struct {
     float taxa_limpeza;
 } AreaComum;
 
-void moduloAreas(AreaComum **vetor, int *qtd, int *tam);
+struct Reserva;
+
 
 int buscarIndiceArea(AreaComum *vetor, int qtd, int idBusca);
 AreaComum* carregarAreas(int *qtd, int *tam);
@@ -16,6 +17,8 @@ void salvarAreas(AreaComum *vetor, int qtd);
 AreaComum* cadastrarArea(AreaComum *vetor, int *qtd, int *tam);
 void listarAreas(AreaComum *vetor, int qtd);
 void alterarArea(AreaComum *vetor, int qtd);
-void removerArea(AreaComum *vetor, int *qtd);
+
+void removerArea(AreaComum *vetor, int *qtd, struct Reserva *vRes, int qRes);
+void moduloAreas(AreaComum **vetor, int *qtd, int *tam, struct Reserva *vRes, int qRes);
 
 #endif

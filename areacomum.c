@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "areacomum.h"
+#include "reserva.h"
 
 #define ARQUIVO_AREACOMUM "areas.bin"
 
@@ -111,10 +113,23 @@ void alterarArea(AreaComum *vetor, int qtd) {
         return;
     }
 
-    printf("Alterando area %s\n", vetor[index].nome);
+    printf("Area encontrada: %s (ID %d)\n", vetor[index].nome, vetor[index].id_area);
 
-    printf("Novo nome: ");
-    scanf(" %[^\n]", vetor[index].nome);
+    printf("Deseja alterar o nome desta area? (1 - Sim / 0 - Nao): ");
+    int op;
+    scanf("%d", &op);
+
+    if(op == 1) {
+        char novoNome[50];
+        scanf(" %[^\n]", novoNome);
+
+        if(strlen(novoNome) < 2) {
+            printf("Nome muito curto/invalido.\n");
+        } else {
+            strcpy(vetor[index].nome, novoNome);
+            printf("Sucesso. Area renomeada para '%s'.\n", novoNome);
+        }
+    }
 
     printf("Nova taxa: ");
     scanf("%f", &vetor[index].taxa_limpeza);
@@ -122,7 +137,7 @@ void alterarArea(AreaComum *vetor, int qtd) {
     printf("Dados atualizados.\n");
 }
 
-void removerArea(AreaComum *vetor, int *qtd) {
+void removerArea(AreaComum *vetor, int *qtd, struct Reserva *vRes, int qRes) {
     int idBusca;
 
     printf("Insira o ID da area a ser removida: ");
@@ -135,7 +150,13 @@ void removerArea(AreaComum *vetor, int *qtd) {
         return;
     }
 
-    // verificar posteriormente se tem reservas antes de apagar;
+    if(areaTemReserva(vRes, qRes, idBusca)) {
+        printf("Erro: Nao e possivel remover essa area.\n");
+        printf("Existem reservas agendadas para este local.\n");
+        printf("Cancele as reservas pendentes antes de excluir a area.\n");
+        system("pause");
+        return;
+    }
 
     for(int j = index; j < *qtd - 1; j++) {
         vetor[j] = vetor[j + 1];
@@ -145,7 +166,7 @@ void removerArea(AreaComum *vetor, int *qtd) {
     printf("Area removida com sucesso.\n");
 }
 
-void moduloAreas(AreaComum **vetor, int *qtd, int *tam) {
+void moduloAreas(AreaComum **vetor, int *qtd, int *tam, struct Reserva *vRes, int qRes) {
     int opcao;
 
     do {
@@ -173,7 +194,7 @@ void moduloAreas(AreaComum **vetor, int *qtd, int *tam) {
                 system("pause");
                 break;
             case 4:
-                removerArea(*vetor, qtd);
+                removerArea(*vetor, qtd, vRes, qRes);
                 system("pause");
                 break;
             case 0:
