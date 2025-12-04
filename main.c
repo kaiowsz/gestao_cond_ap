@@ -30,30 +30,30 @@ int main() {
     
     do {
         system("cls");
-        printf("GESTÃO CONDOMINIAL - BEM VINDO\n");
-        printf("1. Módulo Moradores\n");
-        printf("2. Módulo Áreas Comuns\n");
-        printf("3. Módulo Reservas\n");
-        printf("4. Relatórios Gerenciais (Filtros e Arquivos)\n");
+        printf("GESTAO CONDOMINIAL - BEM VINDO\n");
+        printf("1. Modulo Moradores\n");
+        printf("2. Modulo Areas Comuns\n");
+        printf("3. Modulo Reservas\n");
+        printf("4. Relatorios Gerenciais (Filtros e Arquivos)\n");
         printf("0. Sair e Salvar\n");
         printf(">> ");
         scanf("%d", &opcao);
 
         switch(opcao) {
             case 1:
-                printf("Entrando no módulo de moradores...\n");
-                moduloMoradores(&moradores, &qtdMoradores, &tamMoradores);
+                printf("Entrando no modulo de moradores...\n");
+                moduloMoradores(&moradores, &qtdMoradores, &tamMoradores, reservas, qtdReservas);
                 break;
             case 2:
-                printf("Entrando no módulo de áreas...\n");
+                printf("Entrando no modulo de areas...\n");
                 moduloAreas(&areas, &qtdAreas, &tamAreas);
                 break;
             case 3:
-                printf("Entrando no módulo de reservas...\n");
+                printf("Entrando no modulo de reservas...\n");
                 moduloReservas(&reservas, &qtdReservas, &tamReservas, moradores, qtdMoradores, areas, qtdAreas);
                 break;
             case 4:
-                printf("Entrando nos relatórios...\n");
+                printf("Entrando nos relatorios...\n");
                 if(qtdReservas > 0) {
                     gerarRelatorioReservas(reservas, qtdReservas, moradores, qtdMoradores, areas, qtdAreas);
                 } else {
@@ -65,7 +65,7 @@ int main() {
                 printf("Encerrando o programa...\n");
                 break;
             default:
-                printf("Opção inválida.\n");
+                printf("Opcao invalida.\n");
                 system("pause");
         }
     } while(opcao != 0);
