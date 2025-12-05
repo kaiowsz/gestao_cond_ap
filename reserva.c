@@ -33,6 +33,16 @@ void imprimirLinhaReserva(FILE *saida, Reserva reserva, Morador *vMor, AreaComum
     }
 }
 
+int areaTemReserva(Reserva *vRes, int qRes, int idAreaBusca) {
+    for(int i = 0; i < qRes; i++) {
+        if(vRes[i].id_area == idAreaBusca) {
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
 int anoBissexto(int ano) {
     // divisível por 4 e nao termina em 00 OU divisível por 400.
     return (ano % 4 == 0 && ano % 100 != 0) || (ano % 400 == 0);

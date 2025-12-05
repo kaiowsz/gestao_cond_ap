@@ -24,6 +24,23 @@ int validarFormatoCPF(char *cpf) {
     return 1;
 }
 
+int validarTelefone(char *tel) {
+    int digitos = 0;
+    int len = strlen(tel);
+
+    for(int i = 0; i < len; i++) {
+        if(isdigit(tel[i])) {
+            digitos++;
+        }
+    }
+
+    if(digitos == 10 || digitos == 11) {
+        return 1;
+    }
+
+    return 0;
+}
+
 int validarNome(char *nome) {
     if(strlen(nome) < 3) return 0;
 
@@ -141,7 +158,6 @@ Morador* cadastrarMorador(Morador *vetor, int *qtd, int *tam) {
 
 
     int apTemp;
-
     do {
         printf("Numero do apartamento: ");
         
@@ -158,8 +174,18 @@ Morador* cadastrarMorador(Morador *vetor, int *qtd, int *tam) {
 
     vetor[*qtd].apartamento = apTemp;
 
-    printf("Telefone: ");
-    scanf(" %[^\n]", vetor[*qtd].telefone);
+
+    int telValido = 0;
+    do {
+        printf("Telefone (com DDD, ex: 11999999999): ");
+        scanf(" %[^\n]", vetor[*qtd].telefone);
+
+        if(!validarTelefone(vetor[*qtd].telefone)) {
+            printf("Erro: Telefone invalido. Digite o DDD + Numero (10 ou 11 digitos.)\n");
+        } else {
+            telValido = 1;
+        }
+    } while(!telValido);
 
     (*qtd)++;
 
@@ -208,14 +234,66 @@ void alterarMorador(Morador *vetor, int qtd) {
         return;
     }
 
-    printf("Novo nome: ");
-    scanf(" %[^\n]", vetor[index].nome);
+    printf("Morador encontrado: %s\n", vetor[index].nome);
 
-    printf("Novo telefone: ");
-    scanf(" %[^\n]", vetor[index].telefone);
+    printf("1. Alterar Nome\n");
+    printf("2. Alterar Telefone\n");
+    printf("3. Alterar Apartamento/Bloco\n");
+    printf("0. Cancelar\n");
+    printf(">> ");
 
-    printf("Dados atualizados com sucesso.\n");
+    int opcao;
+    scanf("%d", &opcao);
 
+    if(opcao == 1) {
+        char novoNome[100];
+        do {
+            printf("Novo nome: ");
+            scanf(" %[^\n]", novoNome);
+            if(!validarNome(novoNome)) {
+                printf("Erro: nome invalido (min. 3 letras).\n");
+            }
+        } while(!validarNome(novoNome));
+
+        strcpy(vetor[index].nome, novoNome);
+        printf("Sucesso. Nome atualizado.\n");
+    } else if(opcao == 2) {
+        char novoTel[15];
+        int telValido = 0;
+        do {
+            printf("Novo telefone: ");
+            scanf(" %[^\n]", novoTel);
+            if(!validarTelefone(novoTel)) {
+                printf("Erro: telefone invalido.\n");
+            } else {
+                telValido = 1;
+            }
+        } while(!telValido);
+
+        strcpy(vetor[index].telefone, novoTel);
+        printf("Sucesso. Telefone atualizado.\n");
+    } else if (opcao == 3) {
+        char novoBloco[5];
+        int novoAp;
+
+        printf("Novo Bloco: ");
+        scanf(" %[^\n]", novoBloco);
+
+        do {
+            printf("Novo numero do apartamento: ");
+            if(scanf("%d", &novoAp) != 1) {
+                printf("Valor invalido. Apenas numeros.\n");
+                while(getchar() != '\n');
+                novoAp = -1;
+            }
+        } while(novoAp <= 0);
+
+        strcpy(vetor[index].bloco, novoBloco);
+        vetor[index].apartamento = novoAp;
+        printf("Sucesso. Endereco atualizado.\n");
+    } else {
+        printf("Operacao cancelada.\n");
+    }
 }
 
 void removerMorador(Morador *vetor, int *qtd, struct Reserva *vRes, int qRes) {

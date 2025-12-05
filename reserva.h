@@ -24,6 +24,8 @@ void moduloReservas(Reserva **vRes, int *qRes, int *tRes,
     AreaComum *vArea, int qArea
 );
 
+int areaTemReserva(Reserva *vRes, int qRes, int idAreaBusca);
+
 int moradorTemReserva(Reserva *vRes, int qRes, char *cpf);
 
 int verificarDisponibilidade(Reserva *vRes, int qtd, int idArea, int dia, int mes, int ano);
